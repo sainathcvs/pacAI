@@ -129,14 +129,13 @@ def depthFirstSearch(problem):
 
         if problem.isGoalState(currState):
             return extractDirections(problem, currState, pathToGoal)
-        # print "current State: ",currState
-        successors = problem.getSuccessors(currState) 
+        successors = problem.getSuccessors(currState)
         count = 0
-        for st in successors:
-            if st[0] not in visitedList:
-                fringeList.push(st[0])
-                visitedList[st[0]] = 1
-                pathToGoal[st[0]] = (currState, st[1])
+        for i in range(len(successors)-1, -1, -1):
+            if successors[i][0] not in visitedList:
+                fringeList.push(successors[i][0])
+                visitedList[successors[i][0]] = 1
+                pathToGoal[successors[i][0]] = (currState, successors[i][1])
                 count += 1
                     
         if count == 0:
@@ -145,18 +144,14 @@ def depthFirstSearch(problem):
 
 def extractDirections(problem, goalState, pathToGoal):
     directions = []
-      # print "pathToGoal ",pathToGoal
-      #for key, value in pathToGoal.items():
-        # print key, value
     if goalState in pathToGoal:
         parent = pathToGoal[goalState]
     else:
         return directions
-    while(parent[0] in pathToGoal):
+    while parent[0] in pathToGoal:
         directions.append(parent[1])
         parent = pathToGoal[parent[0]]
     directions.append(parent[1])
-  # print "actual directions", directions[::-1], "type(directions) ", type(directions)
     return directions[::-1]
 
 def breadthFirstSearch(problem):
@@ -175,7 +170,6 @@ def breadthFirstSearch(problem):
         currState = fringeList.pop()
         if (problem.isGoalState(currState) == True):
           return extractDirections(problem, currState, pathToGoal)
-        print "current State: ",currState
         successors = problem.getSuccessors(currState) 
         for st in successors:
           #push all the nodes that are not visited into Queue
