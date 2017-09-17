@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import searchAgents
 
 class SearchProblem:
     """
@@ -142,6 +143,7 @@ def depthFirstSearch(problem):
             fringeList.pop()
     return []
 
+
 def extractDirections(problem, goalState, pathToGoal):
     directions = []
     if goalState in pathToGoal:
@@ -154,6 +156,7 @@ def extractDirections(problem, goalState, pathToGoal):
     directions.append(parent[1])
     return directions[::-1]
 
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
@@ -165,19 +168,27 @@ def breadthFirstSearch(problem):
     visitedList[startState] = 1    
     pathToGoal = {}
 
-    while((fringeList.isEmpty() == False)):
+    while not fringeList.isEmpty():
         #Pop the first node from Queue
         currState = fringeList.pop()
-        if (problem.isGoalState(currState) == True):
+        if problem.isGoalState(currState):
           return extractDirections(problem, currState, pathToGoal)
-        successors = problem.getSuccessors(currState) 
-        for st in successors:
+        successors = problem.getSuccessors(currState)
+        '''for st in successors:
           #push all the nodes that are not visited into Queue
-          if st[0] not in visitedList: 
+          if st[0] not in visitedList:
             fringeList.push(st[0])
             visitedList[st[0]] = 1
-            pathToGoal[st[0]] = (currState, st[1])            
+            pathToGoal[st[0]] = (currState, st[1])'''
+
+        for i in range(len(successors) - 1, -1, -1):
+          #push all the nodes that are not visited into Queue
+            if successors[i][0] not in visitedList:
+                fringeList.push(successors[i][0])
+                visitedList[successors[i][0]] = 1
+                pathToGoal[successors[i][0]] = (currState, successors[i][1])
     return []
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -189,19 +200,27 @@ def uniformCostSearch(problem):
     visitedList[startState] = 1    
     pathToGoal = {}
 
-    while((fringeList.isEmpty() == False)):
+    while not fringeList.isEmpty() == False:
         #Pop the first node from Queue
         currState = fringeList.pop()
-        if (problem.isGoalState(currState) == True):
+        if problem.isGoalState(currState):
           return extractDirections(problem, currState, pathToGoal)
         successors = problem.getSuccessors(currState) 
-        for st in successors:
+        '''for st in successors:
           #push all the nodes that are not visited into Queue
           if st[0] not in visitedList: 
             fringeList.push(st[0], st[2])
             visitedList[st[0]] = 1
-            pathToGoal[st[0]] = (currState, st[1])            
+            pathToGoal[st[0]] = (currState, st[1])'''
+
+        for i in range(len(successors) - 1, -1, -1):
+          #push all the nodes that are not visited into Queue
+            if successors[i][0] not in visitedList:
+                fringeList.push(successors[i][0], successors[i][2])
+                visitedList[successors[i][0]] = 1
+                pathToGoal[successors[i][0]] = (currState, successors[i][1])
     return []
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -210,30 +229,40 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     startState = (problem.getStartState())
     fringeList = util.PriorityQueue()
-    fringeList.push(startState, nullHeuristic(startState, problem))
-    #fringeList.push(startState, manhattanHeuristic(startState, problem))
+    #fringeList.push(startState, nullHeuristic(startState, problem))
+    fringeList.push(startState, searchAgents.manhattanHeuristic(startState, problem))
     visitedList = {}
     visitedList[startState] = 1    
     pathToGoal = {}
 
-    while((fringeList.isEmpty() == False)):
+    while not fringeList.isEmpty():
         #Pop the first node from Queue
         currState = fringeList.pop()
-        if (problem.isGoalState(currState) == True):
-          return extractDirections(problem, currState, pathToGoal)
-        successors = problem.getSuccessors(currState) 
+        if problem.isGoalState(currState):
+            return extractDirections(problem, currState, pathToGoal)
+        successors = problem.getSuccessors(currState)
+        '''
         for st in successors:
           #push all the nodes that are not visited into Queue
           if st[0] not in visitedList: 
             fringeList.push(st[0], st[2] + nullHeuristic(startState, problem))
-            #fringeList.push(st[0], st[2] + manhattanHeuristic(startState, problem))
+            #fringeList.push(st[0], st[2] + searchAgents.manhattanHeuristic(startState, problem))
             visitedList[st[0]] = 1
-            pathToGoal[st[0]] = (currState, st[1])            
+            pathToGoal[st[0]] = (currState, st[1])
+        '''
+
+        for i in range(len(successors) - 1, -1, -1):
+            if successors[i][0] not in visitedList:
+                #fringeList.push(successors[i][0], successors[i][2]+nullHeuristic(startState, problem))
+                fringeList.push(successors[i][0], successors[i][2] + searchAgents.manhattanHeuristic(startState, problem))
+                visitedList[successors[i][0]] = 1
+                pathToGoal[successors[i][0]] = (currState, successors[i][1])
     return []
 
 
