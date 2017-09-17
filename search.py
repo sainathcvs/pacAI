@@ -18,7 +18,6 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
-import collections
 
 class SearchProblem:
     """
@@ -121,44 +120,44 @@ def depthFirstSearch(problem):
     fringeList.push(startState)
     visitedList = {}
     visitedList[startState] = 1    
-    pathToGoal = collections.OrderedDict()
+    pathToGoal = {}
 
-    while((fringeList.isEmpty() == False)):
+    while not fringeList.isEmpty():
         #Peek the top node on the stack
         currState = fringeList.pop()
         fringeList.push(currState)
 
-        if (problem.isGoalState(currState) == True):
-          return extractDirections(problem, currState, pathToGoal)
-        print "current State: ",currState
+        if problem.isGoalState(currState):
+            return extractDirections(problem, currState, pathToGoal)
+        # print "current State: ",currState
         successors = problem.getSuccessors(currState) 
         count = 0
         for st in successors:
-          if st[0] not in visitedList: 
-            fringeList.push(st[0])
-            visitedList[st[0]] = 1
-            pathToGoal[st[0]] = (currState, st[1])            
-            count+=1
+            if st[0] not in visitedList:
+                fringeList.push(st[0])
+                visitedList[st[0]] = 1
+                pathToGoal[st[0]] = (currState, st[1])
+                count += 1
                     
         if count == 0:
-          fringeList.pop()
+            fringeList.pop()
     return []
 
 def extractDirections(problem, goalState, pathToGoal):
-  directions = []
-  print "pathToGoal ",pathToGoal
-  for key, value in pathToGoal.items():
-    print key, value
-  if goalState in pathToGoal:
-    parent = pathToGoal[goalState]
-  else:
-    return directions
-  while(parent[0] in pathToGoal):
+    directions = []
+      # print "pathToGoal ",pathToGoal
+      #for key, value in pathToGoal.items():
+        # print key, value
+    if goalState in pathToGoal:
+        parent = pathToGoal[goalState]
+    else:
+        return directions
+    while(parent[0] in pathToGoal):
+        directions.append(parent[1])
+        parent = pathToGoal[parent[0]]
     directions.append(parent[1])
-    parent = pathToGoal[parent[0]]
-  directions.append(parent[1]) 
-  print "actual directions", directions[::-1], "type(directions) ",type(directions)
-  return directions[::-1]
+  # print "actual directions", directions[::-1], "type(directions) ", type(directions)
+    return directions[::-1]
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -169,7 +168,7 @@ def breadthFirstSearch(problem):
     fringeList.push(startState)
     visitedList = {}
     visitedList[startState] = 1    
-    pathToGoal = collections.OrderedDict()
+    pathToGoal = {}
 
     while((fringeList.isEmpty() == False)):
         #Pop the first node from Queue
@@ -194,7 +193,7 @@ def uniformCostSearch(problem):
     fringeList.push(startState, 0)
     visitedList = {}
     visitedList[startState] = 1    
-    pathToGoal = collections.OrderedDict()
+    pathToGoal = {}
 
     while((fringeList.isEmpty() == False)):
         #Pop the first node from Queue
@@ -226,7 +225,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     #fringeList.push(startState, manhattanHeuristic(startState, problem))
     visitedList = {}
     visitedList[startState] = 1    
-    pathToGoal = collections.OrderedDict()
+    pathToGoal = {}
 
     while((fringeList.isEmpty() == False)):
         #Pop the first node from Queue
