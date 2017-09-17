@@ -132,13 +132,23 @@ def depthFirstSearch(problem):
             return extractDirections(problem, currState, pathToGoal)
         successors = problem.getSuccessors(currState)
         count = 0
+        '''
+        for st in successors:
+            if st[0] not in visitedList:
+                fringeList.push(st[0])
+                visitedList[st[0]] = 1
+                pathToGoal[st[0]] = (currState, st[1])
+                count += 1
+        '''
+
+        #'''
         for i in range(len(successors)-1, -1, -1):
             if successors[i][0] not in visitedList:
                 fringeList.push(successors[i][0])
                 visitedList[successors[i][0]] = 1
                 pathToGoal[successors[i][0]] = (currState, successors[i][1])
                 count += 1
-                    
+        #'''
         if count == 0:
             fringeList.pop()
     return []
