@@ -72,7 +72,7 @@ def tinyMazeSearch(problem):
     s = Directions.SOUTH
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
-#'''
+'''
 def depthFirstSearch(problem):
     visitedList = {}
     pathToGoal = collections.OrderedDict()
@@ -97,9 +97,9 @@ def depthFirstSearch1(problem,visitedList, currState, pathToGoal, directions=[])
     print "Directions before returning ", directions
     return directions            
     
-#'''
-
 '''
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -143,7 +143,7 @@ def depthFirstSearch(problem):
         if count == 0:
           fringeList.pop()
     return []
-'''
+
 def extractDirections(problem, goalState, pathToGoal):
   directions = []
   print "pathToGoal ",pathToGoal
