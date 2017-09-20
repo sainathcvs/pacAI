@@ -191,7 +191,6 @@ class PositionSearchProblem(search.SearchProblem):
          required to get there, and 'stepCost' is the incremental
          cost of expanding to that successor
         """
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = state
@@ -254,6 +253,7 @@ def manhattanHeuristic(position, problem, info={}):
     "The Manhattan distance heuristic for a PositionSearchProblem"
     xy1 = position
     xy2 = problem.goal
+    print "manhattan---", abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
 def euclideanHeuristic(position, problem, info={}):
@@ -288,6 +288,9 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.corners_arr = [0, 0, 0, 0]
+        self.corners_visited = []
+        self.start_state = ((self.startingPosition, []),'','')
 
     def getStartState(self):
         """
@@ -295,14 +298,27 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        return self.start_state
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        '''
+        print "into isGoalState",state[0][1]
+        if state[0][1] == [1, 1, 1, 1]:
+            return True
+        else:
+            return False
+        '''
+        # print "into isGoalState",state[0][1]
+        if len(state[0][1]) == 4:
+            return True
+        else:
+            return False
 
     def getSuccessors(self, state):
         """
@@ -314,8 +330,9 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-
+        costFn = lambda x: 1
         successors = []
+
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -325,8 +342,24 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            #corners_arr = state[0][1]
+            x,y = state[0][0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextState = (nextx, nexty)
+                cost = costFn(nextState)
+                '''
+                # to check if corner is one of the successors of the current state
+                if nextState in state[0][1]:
+                    corner_index = state[0][1].index(nextState)
+                    state[0][1][corner_index] = 1  # If yes, change the state of corners to visited
+                '''
 
-        self._expanded += 1 # DO NOT CHANGE
+                if nextState in self.corners and nextState not in self.corners_visited:
+                    self.corners_visited.append(nextState)
+                successors.append(((nextState, self.corners_visited), action, cost))
+        self._expanded += 1  # DO NOT CHANGE
         return successors
 
     def getCostOfActions(self, actions):
@@ -358,6 +391,8 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    print "walls---",walls
+    print "corners---",corners
 
     "*** YOUR CODE HERE ***"
     return 0 # Default to trivial solution
