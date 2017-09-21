@@ -72,33 +72,6 @@ def tinyMazeSearch(problem):
     s = Directions.SOUTH
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
-'''
-def depthFirstSearch(problem):
-    visitedList = {}
-    pathToGoal = collections.OrderedDict()
-    startState = (problem.getStartState())    
-    visitedList[startState] = 1
-    directions = depthFirstSearch1(problem,visitedList,startState, pathToGoal)
-    print "directions ", directions
-    return directions    
-
-def depthFirstSearch1(problem,visitedList, currState, pathToGoal, directions=[]):
-    if (problem.isGoalState(currState) == True):
-      directions = extractDirections(problem, currState, pathToGoal)
-      return directions
-    successors = problem.getSuccessors(currState) 
-    for st in successors:
-      if st[0] not in visitedList: 
-        visitedList[st[0]] = 1
-        pathToGoal[st[0]] = (currState, st[1])
-        directions = depthFirstSearch1(problem, visitedList, st[0], pathToGoal)
-        if len(directions) > 0:
-          break
-    print "Directions before returning ", directions
-    return directions            
-    
-'''
-
 
 def depthFirstSearch(problem):
     """
@@ -119,38 +92,24 @@ def depthFirstSearch(problem):
     startState = (problem.getStartState())
     fringeList = util.Stack()
     fringeList.push(startState)
-    visitedList = {}
-    visitedList[startState] = 1    
+    visitedList = {} 
     pathToGoal = {}
 
     while not fringeList.isEmpty():
-        #Peek the top node on the stack
         currState = fringeList.pop()
-        fringeList.push(currState)
+        if currState in visitedList:
+          continue
 
+        visitedList[currState] = 1
         if problem.isGoalState(currState):
             return extractDirections(problem, currState, pathToGoal)
         successors = problem.getSuccessors(currState)
         count = 0
-        '''
-        for st in successors:
-            if st[0] not in visitedList:
-                fringeList.push(st[0])
-                visitedList[st[0]] = 1
-                pathToGoal[st[0]] = (currState, st[1])
+        for sc in successors:
+            if sc[0] not in visitedList:
+                fringeList.push(sc[0])
+                pathToGoal[sc[0]] = (currState, sc[1])
                 count += 1
-        '''
-
-        #'''
-        for i in range(len(successors)-1, -1, -1):
-            if successors[i][0] not in visitedList:
-                fringeList.push(successors[i][0])
-                visitedList[successors[i][0]] = 1
-                pathToGoal[successors[i][0]] = (currState, successors[i][1])
-                count += 1
-        #'''
-        if count == 0:
-            fringeList.pop()
     return []
 
 
@@ -161,17 +120,34 @@ def extractDirections(problem, goalState, pathToGoal):
     else:
         return directions
     while parent[0] in pathToGoal:
-        #print parent[1]
         directions.append(parent[1])
         parent = pathToGoal[parent[0]]
     directions.append(parent[1])
     return directions[::-1]
 
+
+def extractDirectionsN(problem, goalState, pathToGoal):
+    directions = []
+    for key, value in pathToGoal.items():
+      print key, " ", value
+    if goalState in pathToGoal:
+        parent = pathToGoal[goalState]
+    else:
+        return directions
+    print "goalState", goalState
+    directions.append(goalState[1])
+    while parent in pathToGoal:
+        directions.append(parent[1])
+        parent = pathToGoal[parent]
+        print "parent ",parent
+    print directions
+    return directions[::-1]
+
+
 oD = {"South":"North", "North":"South","West":"East","East":"West"}
 
 
 # Returns LCA if node n1 , n2 are present in the given
-# binary tre otherwise return -1
 def findLCA(path1, path2, pathToGoal):
     # To store paths to n1 and n2 fromthe root
     # Compare the paths to get the first different value
@@ -182,7 +158,8 @@ def findLCA(path1, path2, pathToGoal):
         if path1[i] == path2[i]:
             break
         i += 1
-    #path1[i]
+    path1[i]
+    print "least common parent ", path1[i]
     first = path1[-1]
     second = path2[-1]
     parent = pathToGoal[first]
@@ -206,109 +183,130 @@ def findLCA(path1, path2, pathToGoal):
     leng = len(directions2)
     for i in xrange(leng):
         directions2.append(oD[directions2[leng-i-1]])
-    return directions1[:]+directions2[:]
 
+    print "directions1 ",directions1,"directions2 ",directions2
+    return directions1[:]+directions2[:]
 
 def extractDirectionsCorners(problem, goalState, pathToGoal):
     corners = goalState[0][1]
     directions = []
+    print "path to goal", problem.corners_visited
     if goalState[0][0] in pathToGoal:
+        print "goal---", goalState
         parent = pathToGoal[goalState[0][0]]
     else:
         return directions
+    print "pathToGoal ",pathToGoal
     li = range(len(corners))
+    #li[0:len(corners):2]
     for i in li[0:len(corners):2]:
         first = corners[i]
         second = corners[i+1]
         firstPath = [first]
         secondPath = [second]
         parent = pathToGoal[first]
+        print "parent", parent
         while parent[0][0][0] in pathToGoal:
+            print "par---",parent[0][0],"---",parent[1]
             firstPath.append(parent[0][0][0])
             parent = pathToGoal[parent[0][0][0]]
         firstPath.append(parent[0][0][0])
         parent = pathToGoal[second]
         while parent[0][0][0] in pathToGoal:
+            print "par---",parent[0][0],"---",parent[1]
             secondPath.append(parent[0][0][0])
             parent = pathToGoal[parent[0][0][0]]
         secondPath.append(parent[0][0][0])
+        print "Iteration i",i, " firstPath ", firstPath, "secondPath ",secondPath
         temp = findLCA(firstPath, secondPath, pathToGoal)
         directions+= temp[:]
+
+    print "directions ", directions
     return directions
+
+
+def extractDirectionsCorners1(problem, goalState, pathToGoal):
+    directions = []
+    print "path to goal", problem.corners_visited
+    if goalState[0][0] in pathToGoal:
+        print "goal---", goalState
+        parent = pathToGoal[goalState[0][0]]
+    else:
+        return directions
+    while parent[0][0][0] in pathToGoal:
+        print "par---",parent[0][0],"---",parent[1]
+        directions.append(parent[1])
+        parent = pathToGoal[parent[0][0][0]]
+    print "directions ", directions, "parent[0][1] ",parent
+    directions.append(parent[1])
+    print "directions[::-1]", directions[::-1]
+    return directions[::-1]
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     # Get start state, push it to stack and mark it as visited.
-    start_state = (problem.getStartState())
-    if len(start_state) == 2:
-        startState = start_state
-    else:
-        startState = start_state
+    start_state = problem.getStartState()
+    startState = (start_state,'','')
+    print startState
     fringeList = util.Queue()
     fringeList.push(startState)
     visitedList = {}
-
-    if len(start_state) == 2:
-        visitedList[startState] = 1
-    else:
-        visitedList[startState[0][0]] = 1
     pathToGoal = {}
 
     while not fringeList.isEmpty():
         # Pop the first node from Queue
-        currState = fringeList.pop()
-        if problem.isGoalState(currState):
-            if len(start_state) == 2:
-                return extractDirections(problem, currState, pathToGoal)
-            else:
-                return extractDirectionsCorners(problem, currState, pathToGoal)
-        successors = problem.getSuccessors(currState)
+        currState = fringeList.pop() 
+        
+        if currState[0] in visitedList:
+          continue
+        print "currState ",currState
+        visitedList[currState[0]] = 1
+        if problem.isGoalState(currState[0]):
+          print "Goal reached ",currState
+          return extractDirectionsN(problem, currState, pathToGoal)
+
+        successors = problem.getSuccessors(currState[0])
+        print "successors ",successors, "\n"
         for sc in successors:
             # push all the nodes that are not visited into Queue
-            if len(start_state) == 2:
-                if sc[0] not in visitedList:
-                    fringeList.push(sc[0])
-                    visitedList[sc[0]] = 1
-                    pathToGoal[sc[0]] = (currState, sc[1])
-            else:
-                if sc[0][0] not in visitedList:
-                    fringeList.push(sc)
-                    visitedList[sc[0][0]] = 1
-                    pathToGoal[sc[0][0]] = (currState, sc[1])
+            if sc[0] not in visitedList:
+              fringeList.push(sc)
+              pathToGoal[sc] = currState
     return []
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    startState = (problem.getStartState())
+    startState = (problem.getStartState(),'',0)
     fringeList = util.PriorityQueue()
     fringeList.push(startState, 0)
-    visitedList = {}
-    visitedList[startState] = 1    
+    visitedList = {}    
     pathToGoal = {}
-
-    while not fringeList.isEmpty() == False:
+    updatedCost = {}
+    updatedCost[startState] = 0
+    while fringeList.isEmpty() == False:
         #Pop the first node from Queue
         currState = fringeList.pop()
-        if problem.isGoalState(currState):
-          return extractDirections(problem, currState, pathToGoal)
-        successors = problem.getSuccessors(currState) 
-        '''for st in successors:
+        print "currentState", currState
+        if currState[0] in visitedList:
+          print "currState ",currState, "visited"
+          continue
+
+        visitedList[currState[0]]=1        
+        if problem.isGoalState(currState[0]):
+          return extractDirectionsN(problem, currState, pathToGoal)
+        successors = problem.getSuccessors(currState[0]) 
+        #print "successors ",successors
+        for st in successors:
           #push all the nodes that are not visited into Queue
           if st[0] not in visitedList: 
-            fringeList.push(st[0], st[2])
-            visitedList[st[0]] = 1
-            pathToGoal[st[0]] = (currState, st[1])'''
-
-        for i in range(len(successors) - 1, -1, -1):
-          #push all the nodes that are not visited into Queue
-            if successors[i][0] not in visitedList:
-                fringeList.push(successors[i][0], successors[i][2])
-                visitedList[successors[i][0]] = 1
-                pathToGoal[successors[i][0]] = (currState, successors[i][1])
+            updatedCost[st] = updatedCost[currState] + st[2] 
+            fringeList.push(st, updatedCost[st])
+            #print "pushed node to queue ", st, "cost is ", currState[2] ,"  ", st[2] 
+            pathToGoal[st] = currState
     return []
 
 
@@ -323,36 +321,33 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    startState = (problem.getStartState())
+    startState = (problem.getStartState(),'',0)
     fringeList = util.PriorityQueue()
-    #fringeList.push(startState, nullHeuristic(startState, problem))
-    fringeList.push(startState, searchAgents.manhattanHeuristic(startState, problem))
-    visitedList = {}
-    visitedList[startState] = 1    
+    fringeList.push(startState, 0)
+    visitedList = {}    
     pathToGoal = {}
-
-    while not fringeList.isEmpty():
+    updatedCost = {}
+    updatedCost[startState] = 0
+    while fringeList.isEmpty() == False:
         #Pop the first node from Queue
         currState = fringeList.pop()
-        if problem.isGoalState(currState):
-            return extractDirections(problem, currState, pathToGoal)
-        successors = problem.getSuccessors(currState)
-        '''
+        print "currentState", currState
+        if currState[0] in visitedList:
+          print "currState ",currState, "visited"
+          continue
+
+        visitedList[currState[0]]=1        
+        if problem.isGoalState(currState[0]):
+          return extractDirectionsN(problem, currState, pathToGoal)
+        successors = problem.getSuccessors(currState[0]) 
+        #print "successors ",successors
         for st in successors:
           #push all the nodes that are not visited into Queue
           if st[0] not in visitedList: 
-            fringeList.push(st[0], st[2] + nullHeuristic(startState, problem))
-            #fringeList.push(st[0], st[2] + searchAgents.manhattanHeuristic(startState, problem))
-            visitedList[st[0]] = 1
-            pathToGoal[st[0]] = (currState, st[1])
-        '''
-
-        for i in range(len(successors) - 1, -1, -1):
-            if successors[i][0] not in visitedList:
-                #fringeList.push(successors[i][0], successors[i][2]+nullHeuristic(startState, problem))
-                fringeList.push(successors[i][0], successors[i][2] + searchAgents.manhattanHeuristic(startState, problem))
-                visitedList[successors[i][0]] = 1
-                pathToGoal[successors[i][0]] = (currState, successors[i][1])
+            updatedCost[st] = updatedCost[currState] + st[2] 
+            fringeList.push(st, updatedCost[st] + heuristic(st[0], problem) )
+            #print "pushed node to queue ", st, "cost is ", currState[2] ,"  ", st[2] 
+            pathToGoal[st] = currState
     return []
 
 
@@ -361,3 +356,4 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
