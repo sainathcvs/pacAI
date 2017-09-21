@@ -290,7 +290,8 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         self.corners_arr = [0, 0, 0, 0]
         self.corners_visited = []
-        self.start_state = ((self.startingPosition, []),'','')
+        #self.start_state = ((self.startingPosition, []),'','')
+        self.start_state = (self.startingPosition, tuple(self.corners_visited))
 
     def getStartState(self):
         """
@@ -315,7 +316,7 @@ class CornersProblem(search.SearchProblem):
             return False
         '''
         # print "into isGoalState",state[0][1]
-        if len(state[0][1]) == 4:
+        if len(state[1]) == 4:
             return True
         else:
             return False
@@ -343,22 +344,23 @@ class CornersProblem(search.SearchProblem):
 
             "*** YOUR CODE HERE ***"
             #corners_arr = state[0][1]
-            x,y = state[0][0]
+            x,y = state[0]
+            corners_visited = ()
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 nextState = (nextx, nexty)
                 cost = costFn(nextState)
-                '''
-                # to check if corner is one of the successors of the current state
-                if nextState in state[0][1]:
-                    corner_index = state[0][1].index(nextState)
-                    state[0][1][corner_index] = 1  # If yes, change the state of corners to visited
-                '''
 
-                if nextState in self.corners and nextState not in self.corners_visited:
-                    self.corners_visited.append(nextState)
-                successors.append(((nextState, self.corners_visited), action, cost))
+                if nextState in self.corners and nextState not in list(state[1]):
+                    #self.corners_visited.append(nextState)
+                    
+                    corners = list(state[1])
+                    corners.append(nextState) 
+                    corners_visited = tuple(corners)
+                else:
+                  corners_visited = state[1]
+                successors.append(((nextState, corners_visited), action, cost))
         self._expanded += 1  # DO NOT CHANGE
         return successors
 
@@ -395,7 +397,11 @@ def cornersHeuristic(state, problem):
     print "corners---",corners
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    xy1 = position
+    xy2 = problem.goal
+    print "manhattan---", abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+    #return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -575,3 +581,4 @@ def mazeDistance(point1, point2, gameState):
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
     return len(search.bfs(prob))
+
