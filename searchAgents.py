@@ -397,11 +397,8 @@ def cornersHeuristic(state, problem):
     print "corners---",corners
 
     "*** YOUR CODE HERE ***"
-    xy1 = position
-    xy2 = problem.goal
-    print "manhattan---", abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
-    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
-    #return 0 # Default to trivial solution
+    
+    return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -581,4 +578,3 @@ def mazeDistance(point1, point2, gameState):
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
     return len(search.bfs(prob))
-
