@@ -165,7 +165,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
 		final_val = (-sys.maxint, Directions.STOP)
 		for action in gameState.getLegalActions(agentIndex):
 			val = self.minmax_change(gameState.generateSuccessor(agentIndex, action), agentIndex+1, depth, num_agents)
-			print "max---",val
 			if val > final_val[0]:
 				final_val = (val,action)
 		return final_val
@@ -175,7 +174,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
 		legalActions = gameState.getLegalActions(agentIndex)
 		for action in legalActions:
 			val = self.minmax_change(gameState.generateSuccessor(agentIndex, action), agentIndex+1, depth, num_agents)
-			print "min---",val
 			if val < final_val[0]:
 				final_val = (val,action)
 		return final_val
