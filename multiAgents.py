@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import sys
 
 from game import Agent
 
@@ -156,7 +157,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        num_agents = gameState.getNumAgents()
+        path = self.maxvalue(gameState, 0, 0, num_agents)
+        return path[1]
+
+    def maxvalue(self, gameState, agentIndex, depth, num_agents):
+		final_val = (-sys.maxint, Directions.STOP)
+		for action in gameState.getLegalActions(agentIndex):
+			val = self.minmax_change(gameState.generateSuccessor(agentIndex, action), agentIndex+1, depth, num_agents)
+			print "max---",val
+			if val > final_val[0]:
+				final_val = (val,action)
+		return final_val
+
+    def minvalue(self, gameState, agentIndex, depth, num_agents):
+		final_val = (sys.maxint, Directions.STOP)
+		legalActions = gameState.getLegalActions(agentIndex)
+		for action in legalActions:
+			val = self.minmax_change(gameState.generateSuccessor(agentIndex, action), agentIndex+1, depth, num_agents)
+			print "min---",val
+			if val < final_val[0]:
+				final_val = (val,action)
+		return final_val
+        
+    def minmax_change(self, gameState, agentIndex, depth, num_agents):
+    	if agentIndex >= num_agents:
+    		agentIndex = 0
+    		depth +=1
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState)
+    	if agentIndex == 0:
+    		return self.maxvalue(gameState, agentIndex, depth, num_agents)[0]
+    	else:
+    		return self.minvalue(gameState, agentIndex, depth, num_agents)[0]		
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -197,4 +230,3 @@ def betterEvaluationFunction(currentGameState):
 
 # Abbreviation
 better = betterEvaluationFunction
-
