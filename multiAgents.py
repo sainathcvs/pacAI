@@ -256,6 +256,40 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
+        num_agents = gameState.getNumAgents()
+        path = self.maxvalue(gameState, 0, 0, num_agents)
+        return path[1]
+
+    def maxvalue(self, gameState, agentIndex, depth, num_agents):
+		final_val = (-sys.maxint, Directions.STOP)
+		for action in gameState.getLegalActions(agentIndex):
+			val = self.expecti_minimax(gameState.generateSuccessor(agentIndex, action), agentIndex+1, depth, num_agents)
+			if val > final_val[0]:
+				final_val = (val,action)
+		return final_val
+
+    def chance_minvalue(self, gameState, agentIndex, depth, num_agents):
+		final_val = (sys.maxint, Directions.STOP)
+		final_val_sum = 0
+		legalActions = gameState.getLegalActions(agentIndex)
+		for action in legalActions:
+			val = self.expecti_minimax(gameState.generateSuccessor(agentIndex, action), agentIndex+1, depth, num_agents)
+			final_val_sum += val
+			if val < final_val[0]:
+				final_val = (val,action)
+		final_val_prob = final_val_sum/len(legalActions) #probability
+		return (final_val_prob,action)
+        
+    def expecti_minimax(self, gameState, agentIndex, depth, num_agents):
+    	if agentIndex >= num_agents:
+    		agentIndex = 0
+    		depth += 1
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState)
+    	if agentIndex == 0:
+    		return self.maxvalue(gameState, agentIndex, depth, num_agents)[0]
+    	else:
+    		return self.chance_minvalue(gameState, agentIndex, depth, num_agents)[0]	
         util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState):
