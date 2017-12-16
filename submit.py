@@ -4,6 +4,7 @@ import pickle as pkl
 import argparse
 import csv
 import numpy as np
+import scipy
 
 
 '''
@@ -177,7 +178,7 @@ def buildTree(node, data):
         for i in range(0,5):
             newNode = TreeNode()
             node.children[i] = newNode
-            subData = data[ np.where(data[:,max_index] == i) ][:max_index,max_index+1:]
+            subData = data[ np.where(data[:,max_index] == i+1) ][:max_index,max_index+1:]
             buildTree(newNode, subData)
     else:
         #simply build leaf nodes
