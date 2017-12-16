@@ -131,6 +131,9 @@ def chiSquareCriterion(data, threshold):
     S=0
     for index in range(0,len(p_)):
        S += (p_[index] - p[index])*(p_[index] - p[index])/p_[index] + (n_[index] - n[index])*(n_[index] - n[index])/n_[index]
+    #Adding code to calculate p value
+    pValue = 1 - scipy.stats.chi2.cdf(S, len(data)-1)
+    return pValue<threshold
 
 
 
