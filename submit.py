@@ -268,6 +268,8 @@ for i in range(0,len(Xtest)):
 
 with open(Ytest_predict_name, "wb") as f:
     writer = csv.writer(f)
+    print np.array(Ypredict).shape
+    print Ypredict
     writer.writerows(Ypredict)
 
 print("Output files generated")
@@ -288,14 +290,24 @@ for i in range(0,len(Xtest)):
     if Ytest[i]==Ypredict[i]:
         count+=1
 
+
+
 """for i in range(0,len(Xtrain)):
     Ypredict.append(tree_traversal(newNode,Xtrain[i]))
     if Ytrain[i]==Ypredict[i]:
         count+=1"""
 
-#pred = tree_traversal(newNode)
-print count
 print "accuracy is ",count/len(Ytest)
+
+with open(Ytest_predict_name, "wb") as f:
+    writer = csv.writer(f)
+    print np.array(Ypredict).reshape(len(Ypredict),1).tolist()
+    #print Ypredict
+    writer.writerows(np.array(Ypredict).reshape(len(Ypredict),1).tolist())
+
+#pred = tree_traversal(newNode)
+#print count
+
 
 
 
