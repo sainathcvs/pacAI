@@ -80,7 +80,7 @@ def entropy(list):
 	val,counts = np.unique(list,return_counts=True)
 	probability = counts/len(list)
 	entr = np.dot(-1*probability, np.log2(probability))
-	print("For lsit:", list, " entropy is ",entr)
+#	print("For lsit:", list, " entropy is ",entr)
 	return entr
 
 """def infogain(label_list,classes):
@@ -108,7 +108,7 @@ def infogain(label_list,classes):
 	for v in val:
 		entrpy.append(entropy( data[np.where(data[:,0] == v)][:,1] ))
 	entrpy = np.array(entrpy)
-	print("Entropy list:",entrpy)
+#	print("Entropy list:",entrpy)
 	info = np.dot(prob,entrpy)
 	return entropy(classes) - info
 
@@ -146,11 +146,27 @@ def chiSquareCriterion(data, threshold):
     pValue = 1 - scipy.stats.chi2.cdf(S, len(data)-1)
     return pValue<threshold
 
+def tree_traversal(root,test_sample):
+    if root == None:
+        return -1
+    if root.data == 'T':
+#        print "true ", root.data
+        return 1
+    if root.data == 'F':
+#        print "false ", root.data
+        return 0
+    idx = root.data
+    tv = test_sample[idx]
+    return tree_traversal(root.nodes[tv-1],test_sample)
 
 
-def buildTree(node, data, pval):
+
+
+def buildTree(node, data, pval, indices):
     #send 2D numpy array with results also appended
     #exit conditions
+    if len(data) == 0:
+        return
     if len(data[0]) == 0:
         v, c = np.unique(data[:,-1])
         m_i = np.argmax(c)
@@ -158,27 +174,21 @@ def buildTree(node, data, pval):
             res = 'F'
         else:
             res = 'T'
-        newNode = TreeNode(data=res)
-        node.nodes = []
-        for index in range(0, 5):
-            node.nodes.append(newNode)
+        node.data = res
         return node
     if len(np.unique(data[:,-1])) == 1:
         if np.unique(data[:,-1])[0] == 0:
             res = 'F'
         else:
             res = 'T'
-        newNode = TreeNode(data=res)
-        node.nodes = []
-        for index in range(0,5):
-            node.nodes.append(newNode)
+        node.data = res
         return node
 
     info_g = []
     for v in range(0,len(data[0])-1):
         info_g.append(infogain(data[:,v], data[:,-1]))
     max_index = info_g.index(max(info_g))
-    node.data = max_index
+    node.data = indices[max_index]
     chi_data = []
     for i in range(1,6):
         d=data[np.where(data[:, max_index] == i)]
@@ -186,20 +196,28 @@ def buildTree(node, data, pval):
         if len(_d) != 0:
             chi_data.append( _d )
 
-    if chiSquareCriterion(chi_data, pval):
+    if chiSquareCriterion(chi_data, pval) and info_g[max_index] > 0:
         #build children, make recursive call
-        print("Expanding further.")
+#        print("Expanding further.")
         for i in range(0,5):
             newNode = TreeNode()
             node.nodes[i] = newNode
             d = data[ np.where(data[:,max_index] == i+1) ]
             subData = np.hstack((d[:,:max_index],d[:,max_index+1:]))
-            buildTree(newNode, subData, pval)
+            subIndices = indices[:max_index] + indices[max_index+1:]
+            #print("max_index",max_index,"info gain:",info_g[max_index])
+            #if(max_index == 0):
+                #print data
+            buildTree(newNode, subData, pval,subIndices)
     else:
         #simply build leaf nodes
-        print("Chisq criterion failed. Creating elaf nodes")
+#        print("Chisq criterion failed. Creating elaf nodes")
         for i in range(0,5):
-            v,c = chi_data[i]
+            if len(chi_data) == 0 or i >= len(chi_data):
+                newNode = TreeNode(data='F')
+                node.nodes[i] = newNode
+                continue;
+            v,c = np.unique(chi_data[i], return_counts=True)
             m_i = np.argmax(c)
             if v[m_i] == 0:
                 newNode = TreeNode(data='F')
@@ -238,7 +256,9 @@ newNode = TreeNode()
 x_train = np.array(Xtrain)
 y_train = np.array(Ytrain).reshape(len(Ytrain),1)
 data = np.hstack((x_train, y_train))
-s = buildTree(newNode, data, pval)
+indc = range(0,x_train.shape[1])
+s = buildTree(newNode, data, pval,indc)
+
 s.save_tree(tree_name)
 print("Testing...")
 Ypredict = []
@@ -252,7 +272,30 @@ with open(Ytest_predict_name, "wb") as f:
 
 print("Output files generated")
 
+#mine
+Ytest = []
+ftest_label = Xtest_name.split('.')[0] + '_label.csv'
+with open(ftest_label, 'rb') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        rw = int(row[0])
+        Ytest.append(rw)
+Ypredict = []
+count = 0
+#predict labels for test samples
+for i in range(0,len(Xtest)):
+    Ypredict.append(tree_traversal(newNode,Xtest[i]))
+    if Ytest[i]==Ypredict[i]:
+        count+=1
 
+"""for i in range(0,len(Xtrain)):
+    Ypredict.append(tree_traversal(newNode,Xtrain[i]))
+    if Ytrain[i]==Ypredict[i]:
+        count+=1"""
+
+#pred = tree_traversal(newNode)
+print count
+print "accuracy is ",count/len(Ytest)
 
 
 
