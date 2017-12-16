@@ -156,10 +156,8 @@ def tree_traversal(root,test_sample):
 #        print "false ", root.data
         return 0
     idx = root.data
-    tv = test_sample[idx]
+    tv = test_sample[idx-1]
     return tree_traversal(root.nodes[tv-1],test_sample)
-
-
 
 
 def buildTree(node, data, pval, indices):
@@ -256,10 +254,12 @@ newNode = TreeNode()
 x_train = np.array(Xtrain)
 y_train = np.array(Ytrain).reshape(len(Ytrain),1)
 data = np.hstack((x_train, y_train))
-indc = range(0,x_train.shape[1])
+#indc = range(0,x_train.shape[1])
+indc = range(1,x_train.shape[1]+1)
 s = buildTree(newNode, data, pval,indc)
+newNode.save_tree(tree_name)
 
-s.save_tree(tree_name)
+'''
 print("Testing...")
 Ypredict = []
 #generate random labels
@@ -273,7 +273,7 @@ with open(Ytest_predict_name, "wb") as f:
     writer.writerows(Ypredict)
 
 print("Output files generated")
-
+'''
 #mine
 Ytest = []
 ftest_label = Xtest_name.split('.')[0] + '_label.csv'
@@ -289,7 +289,9 @@ for i in range(0,len(Xtest)):
     Ypredict.append(tree_traversal(newNode,Xtest[i]))
     if Ytest[i]==Ypredict[i]:
         count+=1
-
+prediForm = []
+for x in Ypredict:
+    prediForm.append([x])
 
 
 """for i in range(0,len(Xtrain)):
@@ -301,9 +303,12 @@ print "accuracy is ",count/len(Ytest)
 
 with open(Ytest_predict_name, "wb") as f:
     writer = csv.writer(f)
-    print np.array(Ypredict).reshape(len(Ypredict),1).tolist()
+    #print np.array(Ypredict).reshape(len(Ypredict),1).tolist()
     #print Ypredict
-    writer.writerows(np.array(Ypredict).reshape(len(Ypredict),1).tolist())
+    #writer.writerows(np.array(Ypredict).reshape(len(Ypredict),1).tolist())
+    writer.writerows(prediForm)
+
+print("Output files generated")
 
 #pred = tree_traversal(newNode)
 #print count
