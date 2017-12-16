@@ -137,8 +137,20 @@ def chiSquareCriterion(data, threshold):
 def buildTree(node, data):
     #send 2D numpy array with results also appended
     #exit conditions
+    if len(data[0]) == 0:
+        v, c = np.unique(data[:,-1])
+        m_i = np.argmax(c)
+        if v[m_i] == 0:
+            res = 'F'
+        else:
+            res = 'T'
+        newNode = TreeNode(data=res)
+        node.children = []
+        for index in range(0, 5):
+            node.children.append(newNode)
+        return
     if len(np.unique(data[:,-1])) == 1:
-        if np.unique(data[:,-1])[0] == 0
+        if np.unique(data[:,-1])[0] == 0:
             res = 'F'
         else:
             res = 'T'
@@ -147,8 +159,6 @@ def buildTree(node, data):
         for index in range(0,5):
             node.children.append(newNode)
         return
-
-    if 
 
     info_g = []
     for v in range(0,len(data[0])-1):
@@ -161,9 +171,23 @@ def buildTree(node, data):
 
     if chiSquareCriterion(chi_data):
         #build children, make recursive call
+        for i in range(0,5):
+            newNode = TreeNode()
+            node.children[i] = newNode
+            subData = data[ np.where(data[:,max_index] == i) ][:max_index,max_index+1:]
+            buildTree(newNode, subData)
     else:
         #simply build leaf nodes
+        for i in range(0,5):
+            v,c = chi_data[i]
+            m_i = np.argmax(c)
+            if v[m_i] == 0:
+                newNode = TreeNode(data='F')
+            else:
+                newNode = TreeNode(data='T')
+            node.children[i] = newNode
 
+    return node
 
 
 parser = argparse.ArgumentParser()
