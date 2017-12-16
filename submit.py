@@ -136,6 +136,20 @@ def chiSquareCriterion(data, threshold):
 
 def buildTree(node, data):
     #send 2D numpy array with results also appended
+    #exit conditions
+    if len(np.unique(data[:,-1])) == 1:
+        if np.unique(data[:,-1])[0] == 0
+            res = 'F'
+        else:
+            res = 'T'
+        newNode = TreeNode(data=res)
+        node.children = []
+        for index in range(0,5):
+            node.children.append(newNode)
+        return
+
+    if 
+
     info_g = []
     for v in range(0,len(data[0])-1):
         info_g.append(infogain(data[:,v]))
