@@ -4,7 +4,7 @@ import pickle as pkl
 import argparse
 import csv
 import numpy as np
-import scipy
+import scipy.stats
 
 
 '''
@@ -122,11 +122,21 @@ def chiSquareCriterion(data, threshold):
     for list in data:
         N += len(list)
         val, count = np.unique(list, return_counts=True)
-        ncount += count[0]
-        pcount += count[1]
+        if np.array_equal(val,[0,1]):
+            ncount += count[0]
+            pcount += count[1]
+            n.append(count[0])
+            p.append(count[1])
+        elif np.array_equal(val,[1]):
+            pcount += count[0]
+            p.append(count[0])
+            n.append(0)
+        elif np.array_equal(val,[0]):
+            ncount += count[0]
+            n.append(count[0])
+            p.append(0)
         attr_count.append(len(list))
-        n.append(count[0])
-        p.append(count[1])
+    attr_count = np.array(attr_count)
     p_ = attr_count * (pcount/N)
     n_ = attr_count * (ncount/N)
     S=0
@@ -149,9 +159,9 @@ def buildTree(node, data, pval):
         else:
             res = 'T'
         newNode = TreeNode(data=res)
-        node.children = []
+        node.nodes = []
         for index in range(0, 5):
-            node.children.append(newNode)
+            node.nodes.append(newNode)
         return node
     if len(np.unique(data[:,-1])) == 1:
         if np.unique(data[:,-1])[0] == 0:
@@ -159,27 +169,31 @@ def buildTree(node, data, pval):
         else:
             res = 'T'
         newNode = TreeNode(data=res)
-        node.children = []
+        node.nodes = []
         for index in range(0,5):
-            node.children.append(newNode)
+            node.nodes.append(newNode)
         return node
 
     info_g = []
     for v in range(0,len(data[0])-1):
-        info_g.append(infogain(data[:,v]))
+        info_g.append(infogain(data[:,v], data[:,-1]))
     max_index = info_g.index(max(info_g))
     node.data = max_index
     chi_data = []
     for i in range(1,6):
-        chi_data.append( data[np.where(data[:,max_index] == i)][:,-1] )
+        d=data[np.where(data[:, max_index] == i)]
+        _d = d[:,-1]
+        if len(_d) != 0:
+            chi_data.append( _d )
 
     if chiSquareCriterion(chi_data, pval):
         #build children, make recursive call
         print("Expanding further.")
         for i in range(0,5):
             newNode = TreeNode()
-            node.children[i] = newNode
-            subData = data[ np.where(data[:,max_index] == i+1) ][:max_index,max_index+1:]
+            node.nodes[i] = newNode
+            d = data[ np.where(data[:,max_index] == i+1) ]
+            subData = np.hstack((d[:,:max_index],d[:,max_index+1:]))
             buildTree(newNode, subData, pval)
     else:
         #simply build leaf nodes
@@ -191,7 +205,7 @@ def buildTree(node, data, pval):
                 newNode = TreeNode(data='F')
             else:
                 newNode = TreeNode(data='T')
-            node.children[i] = newNode
+            node.nodes[i] = newNode
 
     return node
 
@@ -221,7 +235,9 @@ Xtrain, Ytrain, Xtest = load_data(Xtrain_name, Xtest_name)
 print("Training...")
 #s = create_random_tree(0)
 newNode = TreeNode()
-data = np.hstack((np.array(Xtrain,Ytrain)))
+x_train = np.array(Xtrain)
+y_train = np.array(Ytrain).reshape(len(Ytrain),1)
+data = np.hstack((x_train, y_train))
 s = buildTree(newNode, data, pval)
 s.save_tree(tree_name)
 print("Testing...")
