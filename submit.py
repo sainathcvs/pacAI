@@ -138,7 +138,7 @@ def chiSquareCriterion(data, threshold):
 
 
 
-def buildTree(node, data):
+def buildTree(node, data, pval):
     #send 2D numpy array with results also appended
     #exit conditions
     if len(data[0]) == 0:
@@ -173,13 +173,13 @@ def buildTree(node, data):
     for i in range(1,6):
         chi_data.append( data[np.where(data[:,max_index] == i)][:,-1] )
 
-    if chiSquareCriterion(chi_data):
+    if chiSquareCriterion(chi_data, pval):
         #build children, make recursive call
         for i in range(0,5):
             newNode = TreeNode()
             node.children[i] = newNode
             subData = data[ np.where(data[:,max_index] == i+1) ][:max_index,max_index+1:]
-            buildTree(newNode, subData)
+            buildTree(newNode, subData, pval)
     else:
         #simply build leaf nodes
         for i in range(0,5):
@@ -217,7 +217,10 @@ tree_name = args['t']
 Xtrain, Ytrain, Xtest = load_data(Xtrain_name, Xtest_name)
 
 print("Training...")
-s = create_random_tree(0)
+#s = create_random_tree(0)
+newNode = TreeNode()
+data = np.hstack((np.array(Xtrain,Ytrain)))
+s = buildTree(newNode, data, pval)
 s.save_tree(tree_name)
 print("Testing...")
 Ypredict = []
