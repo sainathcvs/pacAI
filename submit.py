@@ -56,7 +56,7 @@ def load_data(ftrain, ftest):
 	print('Data Loading: done')
 	return Xtrain, Ytrain, Xtest
 
-
+nodeCount = 0
 num_feats = 274
 
 #A random tree construction for illustration, do not use this in your code!
@@ -161,6 +161,7 @@ def tree_traversal(root,test_sample):
 
 
 def buildTree(node, data, pval, indices):
+    global nodeCount
     #send 2D numpy array with results also appended
     #exit conditions
     if len(data) == 0:
@@ -206,6 +207,7 @@ def buildTree(node, data, pval, indices):
             #print("max_index",max_index,"info gain:",info_g[max_index])
             #if(max_index == 0):
                 #print data
+            nodeCount+=1
             buildTree(newNode, subData, pval,subIndices)
     else:
         #simply build leaf nodes
@@ -213,6 +215,7 @@ def buildTree(node, data, pval, indices):
         for i in range(0,5):
             if len(chi_data) == 0 or i >= len(chi_data):
                 newNode = TreeNode(data='F')
+                nodeCount+=1
                 node.nodes[i] = newNode
                 continue;
             v,c = np.unique(chi_data[i], return_counts=True)
@@ -224,7 +227,6 @@ def buildTree(node, data, pval, indices):
             node.nodes[i] = newNode
 
     return node
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', required=True)
@@ -300,6 +302,7 @@ for x in Ypredict:
         count+=1"""
 
 print "accuracy is ",count/len(Ytest)
+print "number of nodes expanded ", nodeCount
 
 with open(Ytest_predict_name, "wb") as f:
     writer = csv.writer(f)
