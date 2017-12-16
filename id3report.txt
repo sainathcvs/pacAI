@@ -1,0 +1,19 @@
+
+Results for ID3:
+p value    No. ofnodes,  accuracy
+	0.01 --> 33141, 60.132
+	0.05 --> 33141, 60.132
+	1 --> 33141, 60.132
+
+
+
+contributions:
+
+Anurag(111499605): Decision tree code, debugging and implementation.  
+
+Sai Prasanth(111480980): Spam Filter(part of Code, improving using Laplacian), Decision Tree understanding and Explanation, chi square criterion understanding and tree traversal code
+
+Sainath(111498013): Spam Filter( Logic, part of code, Report and Testing)
+
+Srikant(111491649): Decision Tree( Report and Testing(for small scale problem constructed Decision trees and verified the outputs))
+
