@@ -152,7 +152,7 @@ def buildTree(node, data, pval):
         node.children = []
         for index in range(0, 5):
             node.children.append(newNode)
-        return
+        return node
     if len(np.unique(data[:,-1])) == 1:
         if np.unique(data[:,-1])[0] == 0:
             res = 'F'
@@ -162,7 +162,7 @@ def buildTree(node, data, pval):
         node.children = []
         for index in range(0,5):
             node.children.append(newNode)
-        return
+        return node
 
     info_g = []
     for v in range(0,len(data[0])-1):
@@ -175,6 +175,7 @@ def buildTree(node, data, pval):
 
     if chiSquareCriterion(chi_data, pval):
         #build children, make recursive call
+        print("Expanding further.")
         for i in range(0,5):
             newNode = TreeNode()
             node.children[i] = newNode
@@ -182,6 +183,7 @@ def buildTree(node, data, pval):
             buildTree(newNode, subData, pval)
     else:
         #simply build leaf nodes
+        print("Chisq criterion failed. Creating elaf nodes")
         for i in range(0,5):
             v,c = chi_data[i]
             m_i = np.argmax(c)
